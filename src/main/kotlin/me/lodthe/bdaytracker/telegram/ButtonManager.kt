@@ -6,16 +6,16 @@ import org.kodein.di.Kodein
 
 class ButtonManager(private val kodein: Kodein) {
     fun getStartButtons() = InlineKeyboardMarkup(
-        getAddButtons(),
+        getOnlyAddButtons(),
         arrayOf(
             getInlineButton(ButtonLabel.MENU)
         )
     )
 
     fun getMenuButtons() = InlineKeyboardMarkup(
-        getAddButtons(),
+        getOnlyAddButtons(),
         arrayOf(
-            getInlineButton(ButtonLabel.LIST_OF_USERS)
+            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
         ),
         arrayOf(
             getInlineButton(ButtonLabel.UPDATE_VK_ID)
@@ -23,9 +23,9 @@ class ButtonManager(private val kodein: Kodein) {
     )
 
     fun getRegularButtons() = InlineKeyboardMarkup(
-        getAddButtons(),
+        getOnlyAddButtons(),
         arrayOf(
-            getInlineButton(ButtonLabel.LIST_OF_USERS)
+            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
         ),
         arrayOf(
             getInlineButton(ButtonLabel.UPDATE_VK_ID)
@@ -41,8 +41,54 @@ class ButtonManager(private val kodein: Kodein) {
         )
     )
 
-    private fun getAddButtons() = arrayOf(
-        getInlineButton(ButtonLabel.ADD_DATE),
+    fun getAddFriendButtons() = InlineKeyboardMarkup(
+        arrayOf(
+            getInlineButton(ButtonLabel.MENU)
+        )
+    )
+
+    fun getAddFriendsSuccessButtons() = InlineKeyboardMarkup(
+        arrayOf(
+            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
+        ),
+        arrayOf(
+            getInlineButton(ButtonLabel.MENU)
+        )
+    )
+
+    fun getListOfFriendsButtons() = InlineKeyboardMarkup(
+        getOnlyRemoveButtons(),
+        getOnlyAddButtons(),
+        arrayOf(
+            getInlineButton(ButtonLabel.MENU)
+        )
+    )
+
+    fun getRemoveFriendButtons() = InlineKeyboardMarkup(
+        arrayOf(
+            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
+        ),
+        arrayOf(
+            getInlineButton(ButtonLabel.MENU)
+        )
+    )
+
+    fun getRemoveFriendWrongFormatButtons() = InlineKeyboardMarkup(
+        arrayOf(
+            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
+        ),
+        getOnlyRemoveButtons(),
+        arrayOf(
+            getInlineButton(ButtonLabel.MENU)
+        )
+    )
+
+    private fun getOnlyRemoveButtons() = arrayOf(
+        getInlineButton(ButtonLabel.REMOVE_FRIEND)
+    )
+
+    private fun getOnlyAddButtons() = arrayOf(
+        getInlineButton(ButtonLabel.ADD_FRIEND),
         getInlineButton(ButtonLabel.IMPORT_FROM_VK)
     )
 

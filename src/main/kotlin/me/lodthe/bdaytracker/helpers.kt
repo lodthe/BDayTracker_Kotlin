@@ -1,19 +1,10 @@
 package me.lodthe.bdaytracker
 
-const val NO_BDATE_DATA_MESSAGE = "Нет информации"
+import me.lodthe.bdaytracker.database.BirthDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 
-fun parseDateFromString(str: String?): String {
-    return when (str) {
-        null -> NO_BDATE_DATA_MESSAGE
-        else -> {
-            val numbers = str
-                .split(".")
-                .map { it.padStart(2, '0') }
-                .take(2)
-            when (numbers.size) {
-                2 -> numbers.joinToString(separator = ".") { it }
-                else -> NO_BDATE_DATA_MESSAGE
-            }
-        }
-    }
+fun getCurrentDate(): BirthDate {
+    val date = LocalDateTime.now().atZone(ZoneId.of("Europe/Moscow"))
+    return BirthDate(date.dayOfMonth, date.month.value)
 }
