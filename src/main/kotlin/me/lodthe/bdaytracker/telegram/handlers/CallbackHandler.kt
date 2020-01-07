@@ -1,5 +1,6 @@
 package me.lodthe.bdaytracker.telegram.handlers
 
+import com.pengrad.telegrambot.TelegramException
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.request.AnswerCallbackQuery
 import com.vk.api.sdk.exceptions.ApiPrivateProfileException
@@ -72,11 +73,15 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         if (update.callbackQuery().data() == ButtonLabel.LIST_OF_FRIENDS.label) {
             sendMessage(update, user.getFriendList(offset), buttonManager.getListOfFriendsButtons(offset))
         } else if (update.callbackQuery().message().replyMarkup() != buttonManager.getListOfFriendsButtons(offset)) {
-            editMessage(
-                update.callbackQuery().message(),
-                user.getFriendList(offset),
-                buttonManager.getListOfFriendsButtons(offset)
-            )
+            try {
+                editMessage(
+                    update.callbackQuery().message(),
+                    user.getFriendList(offset),
+                    buttonManager.getListOfFriendsButtons(offset)
+                )
+            } catch (e: TelegramException) {
+                TODO("Bad request: the same message")
+            }
         }
     }
 

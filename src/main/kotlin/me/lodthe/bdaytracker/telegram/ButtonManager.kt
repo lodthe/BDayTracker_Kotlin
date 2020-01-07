@@ -106,6 +106,6 @@ class ButtonManager(private val kodein: Kodein) {
     )
 
     private fun getOnlyGetIdButtons() = arrayOf(
-        getInlineButton(ButtonLabel.GET_ID)
+        getInlineButton(ButtonLabel.GET_ID).url(TextLabel.GET_ID.label)
     )
 }
