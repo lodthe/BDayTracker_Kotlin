@@ -64,6 +64,8 @@ class ButtonManager(private val kodein: Kodein) {
         getOnlyMenuButtons()
     )
 
+    fun getNotificateButtons() = getRegularButtons()
+
 
     private fun getInlineButton(label: ButtonLabel, callback: String = label.label): InlineKeyboardButton {
         return InlineKeyboardButton(label.label).callbackData(callback)

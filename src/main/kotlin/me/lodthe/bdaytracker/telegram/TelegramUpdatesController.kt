@@ -9,7 +9,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
 
 
-class TelegramController(private val kodein: Kodein) {
+class TelegramUpdatesController(private val kodein: Kodein) {
     private val bot: KTelegramBot by kodein.instance()
     private val messageHandler: MessageHandler by kodein.instance()
     private val callbackHandler: CallbackHandler by kodein.instance()

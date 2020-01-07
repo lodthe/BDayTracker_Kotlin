@@ -40,7 +40,7 @@ data class DatabaseUser(val telegramId: Long) {
     @JsonIgnore
     fun getSortedFriendList() = friends.toList().sortedBy { BirthDate.getDayOfYear(it.birthday) }
 
-    fun getFriendList(offset: Int, take: Int = FRIEND_LIST_PAGE_SIZE): String {
+    fun getFriendList(offset: Int = getNearestBirthdayId(), take: Int = FRIEND_LIST_PAGE_SIZE): String {
         val countOfRadix = friends.size.toString().length
         val response = getSortedFriendList()
             .mapIndexed { index, friend ->

@@ -4,10 +4,10 @@ import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup
 import com.pengrad.telegrambot.model.request.ParseMode
-import com.pengrad.telegrambot.request.EditMessageText
-import com.pengrad.telegrambot.request.SendMessage
 import me.lodthe.bdaytracker.database.UsersManager
-import me.lodthe.bdaytracker.telegram.*
+import me.lodthe.bdaytracker.telegram.ButtonManager
+import me.lodthe.bdaytracker.telegram.KTelegramBot
+import me.lodthe.bdaytracker.telegram.SmartTelegramMessageRequestsController
 import me.lodthe.bdaytracker.vk.KVKBot
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
@@ -15,9 +15,10 @@ import org.kodein.di.generic.instance
 open class BaseHandler(private val kodein: Kodein) {
     protected val vkBot: KVKBot by kodein.instance()
     protected val bot: KTelegramBot by kodein.instance()
-    private val requestSender: PriorityTelegramRequestSender by kodein.instance()
+    private val smartMessageController: SmartTelegramMessageRequestsController by kodein.instance()
     protected val buttonManager: ButtonManager by kodein.instance()
     protected val users: UsersManager by kodein.instance()
+
 
     open suspend fun handle(update: Update): Unit {
         sendMessage(update, "Handled")
@@ -38,15 +39,13 @@ open class BaseHandler(private val kodein: Kodein) {
         priority: Int = 0,
         parseMode: ParseMode = ParseMode.Markdown
     ) {
-        requestSender.addRequest(TelegramRequest(suspend {
-            bot.execute(
-                SendMessage(getChatId(update), messageText)
-                    .replyMarkup(markup)
-                    .parseMode(parseMode)
-                    .disableWebPagePreview(true)
-            )
-            Unit
-        }, priority))
+        smartMessageController.sendMessage(
+            getChatId(update),
+            messageText,
+            markup,
+            priority,
+            parseMode
+        )
     }
 
     protected open suspend fun editMessage(
@@ -56,14 +55,13 @@ open class BaseHandler(private val kodein: Kodein) {
         priority: Int = 0,
         parseMode: ParseMode = ParseMode.Markdown
     ) {
-        requestSender.addRequest(TelegramRequest(suspend {
-            bot.execute(
-                EditMessageText(getChatId(message), message.messageId(), newMessageText)
-                    .replyMarkup(newMarkup)
-                    .parseMode(parseMode)
-                    .disableWebPagePreview(true)
-            )
-            Unit
-        }, priority))
+        smartMessageController.editMessage(
+            getChatId(message),
+            message.messageId(),
+            newMessageText,
+            newMarkup,
+            priority,
+            parseMode
+        )
     }
 }

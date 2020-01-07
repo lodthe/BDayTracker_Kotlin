@@ -25,8 +25,9 @@ val kodein = Kodein {
     bind<KTelegramBot>() with singleton {
         KTelegramBot(System.getenv("TELEGRAM_BOT_TOKEN"))
     }
+    bind<TelegramNotificationController>() with singleton { TelegramNotificationController(kodein) }
     bind<PriorityTelegramRequestSender>() with singleton { PriorityTelegramRequestSender(kodein) }
-    bind<MessageSender>() with singleton { MessageSender(kodein) }
+    bind<SmartTelegramMessageRequestsController>() with singleton { SmartTelegramMessageRequestsController(kodein) }
     bind<MessageHandler>() with singleton { MessageHandler(kodein) }
     bind<CallbackHandler>() with singleton { CallbackHandler(kodein) }
     bind<ButtonManager>() with singleton { ButtonManager(kodein) }
@@ -42,10 +43,12 @@ val kodein = Kodein {
 }
 
 suspend fun runControllers(kodein: Kodein) = coroutineScope {
-    val telegramController = TelegramController(kodein)
+    val telegramController = TelegramUpdatesController(kodein)
     val queriesSender: PriorityTelegramRequestSender by kodein.instance()
+    val notificator: TelegramNotificationController by kodein.instance()
     launch { telegramController.run() }
     launch { queriesSender.run() }
+    launch { notificator.run() }
 }
 
 suspend fun main() {

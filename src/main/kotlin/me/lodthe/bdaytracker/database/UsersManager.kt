@@ -1,11 +1,10 @@
 package me.lodthe.bdaytracker.database
 
-import me.lodthe.bdaytracker.vk.KVKBot
+import kotlinx.coroutines.coroutineScope
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
 import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.eq
-import kotlinx.coroutines.coroutineScope
 
 class UsersManager(kodein: Kodein) {
     private val db: CoroutineDatabase by kodein.instance()
@@ -19,8 +18,11 @@ class UsersManager(kodein: Kodein) {
     }
 
     suspend fun updateUser(user: DatabaseUser): Unit = coroutineScope {
-        users.deleteOne(DatabaseUser::telegramId eq user.telegramId)
-        users.insertOne(user)
+        users.findOneAndReplace(DatabaseUser::telegramId eq user.telegramId, user)
         Unit
+    }
+
+    suspend fun getAllUsers() = coroutineScope {
+        users.find()
     }
 }
