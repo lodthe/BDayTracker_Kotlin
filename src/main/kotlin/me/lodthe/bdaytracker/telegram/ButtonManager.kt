@@ -8,34 +8,27 @@ import org.kodein.di.Kodein
 class ButtonManager(private val kodein: Kodein) {
     fun getStartButtons() = InlineKeyboardMarkup(
         getOnlyAddButtons(),
-        getOnlyMenuButtons()
+        getOnlyMenuButtons(),
+        getOnlyHelpButtons()
     )
+
+    fun getHelpButtons() = getStartButtons()
 
     fun getMenuButtons() = InlineKeyboardMarkup(
         getOnlyAddButtons(),
-        arrayOf(
-            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
-        ),
-        arrayOf(
-            getInlineButton(ButtonLabel.UPDATE_VK_ID)
-        )
+        getOnlyListOfFriendsButtons(),
+        getOnlyUpdateVKIDButtons()
     )
 
     fun getRegularButtons() = InlineKeyboardMarkup(
         getOnlyAddButtons(),
-        arrayOf(
-            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
-        ),
-        arrayOf(
-            getInlineButton(ButtonLabel.UPDATE_VK_ID)
-        ),
+        getOnlyListOfFriendsButtons(),
+        getOnlyUpdateVKIDButtons(),
         getOnlyMenuButtons()
     )
 
     fun getGetIdButtons() = InlineKeyboardMarkup(
-        arrayOf(
-            getInlineButton(ButtonLabel.GET_ID).url(TextLabel.GET_ID.label)
-        ),
+        getOnlyGetIdButtons(),
         getOnlyMenuButtons()
     )
 
@@ -44,9 +37,7 @@ class ButtonManager(private val kodein: Kodein) {
     )
 
     fun getAddFriendsSuccessButtons() = InlineKeyboardMarkup(
-        arrayOf(
-            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
-        ),
+        getOnlyListOfFriendsButtons(),
         getOnlyMenuButtons()
     )
 
@@ -58,19 +49,25 @@ class ButtonManager(private val kodein: Kodein) {
     )
 
     fun getRemoveFriendButtons() = InlineKeyboardMarkup(
-        arrayOf(
-            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
-        ),
+        getOnlyListOfFriendsButtons(),
         getOnlyMenuButtons()
     )
 
     fun getRemoveFriendWrongFormatButtons() = InlineKeyboardMarkup(
-        arrayOf(
-            getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
-        ),
+        getOnlyListOfFriendsButtons(),
         getOnlyRemoveButtons(),
         getOnlyMenuButtons()
     )
+
+    fun getWrongCommandButtons() = InlineKeyboardMarkup(
+        getOnlyHelpButtons(),
+        getOnlyMenuButtons()
+    )
+
+
+    private fun getInlineButton(label: ButtonLabel, callback: String = label.label): InlineKeyboardButton {
+        return InlineKeyboardButton(label.label).callbackData(callback)
+    }
 
     private fun getOnlyPaginationButtons(currentOffset: Int) = arrayOf (
         getInlineButton(
@@ -96,7 +93,19 @@ class ButtonManager(private val kodein: Kodein) {
         getInlineButton(ButtonLabel.MENU)
     )
 
-    private fun getInlineButton(label: ButtonLabel, callback: String = label.label): InlineKeyboardButton {
-        return InlineKeyboardButton(label.label).callbackData(callback)
-    }
+    private fun getOnlyHelpButtons() = arrayOf(
+        getInlineButton(ButtonLabel.HELP)
+    )
+
+    private fun getOnlyListOfFriendsButtons() = arrayOf(
+        getInlineButton(ButtonLabel.LIST_OF_FRIENDS)
+    )
+
+    private fun getOnlyUpdateVKIDButtons() = arrayOf(
+        getInlineButton(ButtonLabel.UPDATE_VK_ID)
+    )
+
+    private fun getOnlyGetIdButtons() = arrayOf(
+        getInlineButton(ButtonLabel.GET_ID)
+    )
 }

@@ -18,7 +18,7 @@ class TelegramController(private val kodein: Kodein) {
         bot.runUpdatesListener().collect {update ->
             try {
                 when {
-                    update.message() != null -> messageHandler.handle(update)
+                    update.message()?.text() != null -> messageHandler.handle(update)
                     update.callbackQuery() != null -> callbackHandler.handle(update)
                 }
             } catch(e: TelegramException) {

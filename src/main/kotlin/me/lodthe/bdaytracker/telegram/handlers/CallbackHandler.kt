@@ -1,11 +1,8 @@
 package me.lodthe.bdaytracker.telegram.handlers
 
-import com.pengrad.telegrambot.TelegramException
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.request.AnswerCallbackQuery
-import com.pengrad.telegrambot.request.SendMessage
 import com.vk.api.sdk.exceptions.ApiPrivateProfileException
-import com.vk.api.sdk.objects.polls.Answer
 import kotlinx.coroutines.coroutineScope
 import me.lodthe.bdaytracker.database.UserState
 import me.lodthe.bdaytracker.telegram.ButtonLabel
@@ -13,7 +10,11 @@ import me.lodthe.bdaytracker.telegram.MessageLabel
 import org.kodein.di.Kodein
 
 class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
-    override suspend fun handle(update: Update) = coroutineScope {
+    override fun getChatId(update: Update): Long {
+        return update.callbackQuery().message().chat().id()
+    }
+
+    override suspend fun handle(update: Update): Unit = coroutineScope {
         val callbackData = update.callbackQuery().data()
         when {
             callbackData == ButtonLabel.MENU.label -> handleMenu(update)
@@ -21,8 +22,12 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
             callbackData == ButtonLabel.UPDATE_VK_ID.label -> handleUpdateVkId(update)
             callbackData == ButtonLabel.ADD_FRIEND.label -> handleAddFriend(update)
             callbackData == ButtonLabel.REMOVE_FRIEND.label -> handleRemoveFriend(update)
+            callbackData == ButtonLabel.HELP.label -> handleHelp(update)
             callbackData.startsWith(ButtonLabel.LIST_OF_FRIENDS.label) -> handleListOfFriends(update)
         }
+
+        bot.execute(AnswerCallbackQuery(update.callbackQuery().id()))
+        Unit
     }
 
     private suspend fun handleMenu(update: Update) {
@@ -64,19 +69,14 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
                 user.fixOffsetValue(it)
             }
 
-        when {
-            update.callbackQuery().data() == ButtonLabel.LIST_OF_FRIENDS.label ->
-                sendMessage(update, user.getFriendList(offset), buttonManager.getListOfFriendsButtons(offset))
-
-            update.callbackQuery().message().replyMarkup() != buttonManager.getListOfFriendsButtons(offset) ->
-                editMessage(
-                    update.callbackQuery().message(),
-                    user.getFriendList(offset),
-                    buttonManager.getListOfFriendsButtons(offset)
-                )
-
-            else ->
-                bot.execute(AnswerCallbackQuery(update.callbackQuery().id()))
+        if (update.callbackQuery().data() == ButtonLabel.LIST_OF_FRIENDS.label) {
+            sendMessage(update, user.getFriendList(offset), buttonManager.getListOfFriendsButtons(offset))
+        } else if (update.callbackQuery().message().replyMarkup() != buttonManager.getListOfFriendsButtons(offset)) {
+            editMessage(
+                update.callbackQuery().message(),
+                user.getFriendList(offset),
+                buttonManager.getListOfFriendsButtons(offset)
+            )
         }
     }
 
@@ -94,7 +94,7 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         sendMessage(update, MessageLabel.REMOVE_FRIEND.label, buttonManager.getRemoveFriendButtons())
     }
 
-    override fun getChatId(update: Update): Long {
-        return update.callbackQuery().message().chat().id()
+    private suspend fun handleHelp(update: Update) {
+        sendMessage(update, MessageLabel.HELP.label, buttonManager.getHelpButtons())
     }
 }

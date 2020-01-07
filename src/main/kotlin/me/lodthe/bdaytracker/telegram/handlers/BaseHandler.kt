@@ -19,7 +19,7 @@ open class BaseHandler(private val kodein: Kodein) {
     protected val buttonManager: ButtonManager by kodein.instance()
     protected val users: UsersManager by kodein.instance()
 
-    open suspend fun handle(update: Update) {
+    open suspend fun handle(update: Update): Unit {
         sendMessage(update, "Handled")
     }
 

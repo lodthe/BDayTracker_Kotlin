@@ -16,10 +16,11 @@ class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         val trimmedText = update.message().text().trim()
         val user = users.getOrCreateUser(getChatId(update))
         when {
-            trimmedText.startsWith("/start") -> handleStart(update)
             user.state == UserState.CHANGING_ID -> handleChangingId(update)
             user.state == UserState.ADDING_NEW_FRIEND -> handleAddingNewFriend(update)
             user.state == UserState.REMOVING_FRIEND -> handleRemovingFriend(update)
+            trimmedText.startsWith("/start") -> handleStart(update)
+            else -> handleWrongCommand(update)
         }
     }
 
@@ -80,5 +81,9 @@ class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         }
 
         users.updateUser(user)
+    }
+
+    private suspend fun handleWrongCommand(update: Update) {
+        sendMessage(update, MessageLabel.WRONG_COMMAND.label, buttonManager.getWrongCommandButtons())
     }
 }

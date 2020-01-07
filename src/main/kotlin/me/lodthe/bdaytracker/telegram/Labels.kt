@@ -4,7 +4,17 @@ enum class MessageLabel(val label: String) {
     START("""
         Привет! Я умею напоминать про Дни Рождения (ДР) твоих друзей. 
         
-        Ты можешь добавить какого-то друга вручную (`${ButtonLabel.ADD_FRIEND.label}`) или добавить даты своих друзей из ВКонтакте (`${ButtonLabel.IMPORT_FROM_VK.label}`).
+        Ты можешь добавить какого-то друга вручную (`${ButtonLabel.ADD_FRIEND.label}`) или добавить даты Дней Рождения своих друзей из ВКонтакте (`${ButtonLabel.IMPORT_FROM_VK.label}`).
+        
+        Когда наступит чей-то День Рождения, я напомню тебе об этом, если вдруг ты сам забудешь (и никто об этом не узнает)!
+        
+        Чтобы импортировать друзей из VK, мне потребуется ID твоего профиля. Также, твой профиль должен быть открытым, когда ты захочешь импортировать друзей (потом можешь сделать его приватным).
+    """.trimIndent()),
+
+    HELP(START.label),
+
+    WRONG_COMMAND("""
+        Кажется, ты отправил мне что-то не то.
     """.trimIndent()),
 
     MENU("""
@@ -81,6 +91,7 @@ enum class MessageLabel(val label: String) {
 }
 
 enum class ButtonLabel(val label: String) {
+    HELP("Помощь"),
     ADD_FRIEND("Добавить"),
     IMPORT_FROM_VK("Обновить из VK"),
     UPDATE_VK_ID("Обновить VK ID"),
