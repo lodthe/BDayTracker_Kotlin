@@ -85,6 +85,8 @@ enum class ButtonLabel(val label: String) {
     IMPORT_FROM_VK("Обновить из VK"),
     UPDATE_VK_ID("Обновить VK ID"),
     LIST_OF_FRIENDS("Список друзей"),
+    LIST_OF_FRIENDS_PREVIOUS_PAGE("Назад"),
+    LIST_OF_FRIENDS_NEXT_PAGE("Вперед"),
     MENU("Меню"),
     GET_ID("Узнать VK ID"),
     REMOVE_FRIEND("Удалить друга")

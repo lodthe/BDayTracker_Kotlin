@@ -12,8 +12,6 @@ import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
 
 class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
-    private val callbackHandler: CallbackHandler by kodein.instance()
-
     override suspend fun handle(update: Update) = coroutineScope {
         val trimmedText = update.message().text().trim()
         val user = users.getOrCreateUser(getChatId(update))
@@ -28,59 +26,42 @@ class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
     private suspend fun handleChangingId(update: Update) {
         val id = update.message().text().toIntOrNull()
         if (id == null) {
-            callbackHandler.sendUpdateVkIdMessage(getChatId(update))
+            sendMessage(update, MessageLabel.UPDATE_VK_ID.label, buttonManager.getGetIdButtons())
         } else {
             val user = users.getOrCreateUser(getChatId(update))
+
             try {
                 user.vkId = id
                 user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
             } catch (e: ApiPrivateProfileException) {
-                return sender.send(
-                    SendMessage(getChatId(update), MessageLabel.PROFILE_IS_CLOSED.label)
-                        .replyMarkup(buttonManager.getRegularButtons())
-                )
+                return sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getRegularButtons())
             }
+
             user.state = UserState.NONE
             users.updateUser(user)
-
-            sender.send(
-                SendMessage(update.message().chat().id(), MessageLabel.ID_HAS_CHANGED.label)
-                    .replyMarkup(buttonManager.getRegularButtons())
-            )
+            sendMessage(update, MessageLabel.ID_HAS_CHANGED.label, buttonManager.getRegularButtons())
         }
     }
 
     private suspend fun handleStart(update: Update) {
-        sender.send(
-        SendMessage(update.message().chat().id(), MessageLabel.START.label)
-            .replyMarkup(buttonManager.getStartButtons())
-        )
+        sendMessage(update, MessageLabel.START.label, buttonManager.getStartButtons())
     }
 
     private suspend fun handleAddingNewFriend(update: Update) {
         val lines = update.message().text().split("\n")
+
         when {
-            lines.size != 2
-            -> sender.send(
-                SendMessage(getChatId(update), MessageLabel.ADD_FRIEND_WRONG_LINES_COUNT.label)
-                    .replyMarkup(buttonManager.getAddFriendButtons())
-            )
+            lines.size != 2 ->
+                sendMessage(update, MessageLabel.ADD_FRIEND_WRONG_LINES_COUNT.label, buttonManager.getAddFriendButtons())
 
-            BirthDate.fromString(lines[1]) == null
-            -> sender.send(
-                SendMessage(getChatId(update), MessageLabel.ADD_FRIEND_WRONG_DATE_FORMAT.label)
-                    .replyMarkup(buttonManager.getAddFriendButtons())
-            )
+            BirthDate.fromString(lines[1]) == null ->
+                sendMessage(update, MessageLabel.ADD_FRIEND_WRONG_DATE_FORMAT.label, buttonManager.getAddFriendButtons())
 
-            else
-            -> {
+            else -> {
                 val user = users.getOrCreateUser(getChatId(update))
                 user.addFriend(Friend(name = lines[0], birthday = BirthDate.fromString(lines[1])))
                 users.updateUser(user)
-                sender.send(
-                    SendMessage(getChatId(update), MessageLabel.ADD_FRIEND_SUCCESS.label)
-                        .replyMarkup(buttonManager.getAddFriendsSuccessButtons())
-                )
+                sendMessage(update, MessageLabel.ADD_FRIEND_SUCCESS.label, buttonManager.getAddFriendsSuccessButtons())
             }
         }
     }
@@ -91,17 +72,13 @@ class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         user.state = UserState.NONE
 
         if ((friendId == null) or (friendId !in user.getUserFriendsSizeRange())) {
-            sender.send(
-                SendMessage(getChatId(update), MessageLabel.REMOVE_FRIEND_WRONG_FORMAT.label)
-                    .replyMarkup(buttonManager.getRemoveFriendWrongFormatButtons())
-            )
+            sendMessage(update, MessageLabel.REMOVE_FRIEND_WRONG_FORMAT.label,
+                buttonManager.getRemoveFriendWrongFormatButtons())
         } else {
             user.removeFriend(friendId!!)
-            sender.send(
-                SendMessage(getChatId(update), MessageLabel.REMOVE_FRIEND_SUCCESS.label)
-                    .replyMarkup(buttonManager.getRegularButtons())
-            )
+            sendMessage(update, MessageLabel.REMOVE_FRIEND_SUCCESS.label, buttonManager.getRegularButtons())
         }
+
         users.updateUser(user)
     }
 }

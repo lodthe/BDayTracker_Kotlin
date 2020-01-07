@@ -5,13 +5,13 @@ import com.vk.api.sdk.objects.friends.UserXtrLists
 import me.lodthe.bdaytracker.getCurrentDate
 import me.lodthe.bdaytracker.telegram.TextLabel
 import kotlin.math.max
+import kotlin.math.min
 
 enum class UserState {
     NONE,
     CHANGING_ID,
     ADDING_NEW_FRIEND,
-    REMOVING_FRIEND,
-    WATCHING_FRIENDLIST
+    REMOVING_FRIEND
 }
 
 data class Friend(
@@ -31,6 +31,8 @@ data class DatabaseUser(val telegramId: Long) {
 
     fun getUserFriendsSizeRange() = IntRange(1, friends.size)
 
+    fun fixOffsetValue(offset: Int) = max(0, min(offset, friends.size - FRIEND_LIST_PAGE_SIZE))
+
     fun addFriend(friend: Friend) {
         friends.add(friend)
     }
@@ -38,15 +40,18 @@ data class DatabaseUser(val telegramId: Long) {
     @JsonIgnore
     fun getSortedFriendList() = friends.toList().sortedBy { BirthDate.getDayOfYear(it.birthday) }
 
-    fun getFriendList(offset: Int = getNearestBirthdayId(), take: Int = FRIEND_LIST_PAGE_SIZE): String {
+    fun getFriendList(offset: Int, take: Int = FRIEND_LIST_PAGE_SIZE): String {
         val countOfRadix = friends.size.toString().length
-        return getSortedFriendList()
+        val response = getSortedFriendList()
             .mapIndexed { index, friend ->
                 "*${(index + 1).toString().padStart(countOfRadix, '0')}*. " +
                     "${friend.getNameWithVKURL()} — ${friend.birthday ?: TextLabel.NO_BIRTHDATE_DATA.label}"
-            }.drop(max(offset, 0))
+            }
+            .drop(max(offset, 0))
             .take(take)
             .joinToString(separator = "\n")
+
+        return if (response.isNotEmpty()) response else TextLabel.EMPTY_FRIEND_LIST.label
     }
 
     fun removeFriend(id: Int) {

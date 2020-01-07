@@ -13,12 +13,12 @@ data class BirthDate(val day: Int, val month: Int) {
         fun fromString(str: String?): BirthDate? = when (str) {
             null -> null
             else -> {
-                val numbers = str.split(".").map { it.toInt() }
+                val numbers = str.split(".").map { it.toIntOrNull() }
                 when {
-                    numbers.size < 2 -> null
+                    numbers.size !in (2..3) -> null
                     numbers[0] !in (1..31) -> null
                     numbers[1] !in (1..12) -> null
-                    else -> BirthDate(numbers[0], numbers[1])
+                    else -> BirthDate(numbers[0]!!, numbers[1]!!)
                 }
             }
         }
