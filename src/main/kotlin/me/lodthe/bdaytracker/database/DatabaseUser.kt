@@ -9,6 +9,7 @@ import kotlin.math.min
 
 enum class UserState {
     NONE,
+    START,
     CHANGING_ID,
     ADDING_NEW_FRIEND,
     REMOVING_FRIEND
@@ -45,7 +46,7 @@ data class DatabaseUser(val telegramId: Long) {
         val response = getSortedFriendList()
             .mapIndexed { index, friend ->
                 "*${(index + 1).toString().padStart(countOfRadix, '0')}*. " +
-                    "${friend.getNameWithVKURL()} — ${friend.birthday ?: TextLabel.NO_BIRTHDATE_DATA.label}"
+                        "${friend.getNameWithVKURL()} — ${friend.birthday ?: TextLabel.NO_BIRTHDATE_DATA.label}"
             }
             .drop(max(offset, 0))
             .take(take)

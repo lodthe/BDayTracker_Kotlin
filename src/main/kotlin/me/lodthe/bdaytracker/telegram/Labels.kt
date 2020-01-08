@@ -95,7 +95,9 @@ enum class MessageLabel(val label: String) {
         Не забудь сегодня поздравить друзей с Днем Рождения:
         
         
-    """.trimIndent())
+    """.trimIndent()),
+
+    LIST_OF_FRIENDS("")
 }
 
 enum class ButtonLabel(val label: String) {

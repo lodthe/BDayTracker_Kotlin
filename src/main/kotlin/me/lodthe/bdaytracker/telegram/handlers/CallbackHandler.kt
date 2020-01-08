@@ -1,6 +1,7 @@
 package me.lodthe.bdaytracker.telegram.handlers
 
 import com.pengrad.telegrambot.TelegramException
+import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.request.AnswerCallbackQuery
 import com.vk.api.sdk.exceptions.ApiPrivateProfileException
@@ -15,16 +16,41 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         return update.callbackQuery().message().chat().id()
     }
 
+    override fun getMessageFromUpdate(update: Update): Message {
+        return update.callbackQuery().message()
+    }
+
     override suspend fun handle(update: Update): Unit = coroutineScope {
         val callbackData = update.callbackQuery().data()
         when {
-            callbackData == ButtonLabel.MENU.label -> handleMenu(update)
-            callbackData == ButtonLabel.IMPORT_FROM_VK.label -> handleImportFromVK(update)
-            callbackData == ButtonLabel.UPDATE_VK_ID.label -> handleUpdateVkId(update)
-            callbackData == ButtonLabel.ADD_FRIEND.label -> handleAddFriend(update)
-            callbackData == ButtonLabel.REMOVE_FRIEND.label -> handleRemoveFriend(update)
-            callbackData == ButtonLabel.HELP.label -> handleHelp(update)
-            callbackData.startsWith(ButtonLabel.LIST_OF_FRIENDS.label) -> handleListOfFriends(update)
+            callbackData == ButtonLabel.MENU.label -> {
+                sendUserRequest(MessageLabel.MENU.toString(), update)
+                handleMenu(update)
+            }
+            callbackData == ButtonLabel.IMPORT_FROM_VK.label -> {
+                sendUserRequest(MessageLabel.IMPORT_FROM_VK.toString(), update)
+                handleImportFromVK(update)
+            }
+            callbackData == ButtonLabel.UPDATE_VK_ID.label -> {
+                sendUserRequest(MessageLabel.UPDATE_VK_ID.toString(), update)
+                handleUpdateVkId(update)
+            }
+            callbackData == ButtonLabel.ADD_FRIEND.label -> {
+                sendUserRequest(MessageLabel.ADD_FRIEND.toString(), update)
+                handleAddFriend(update)
+            }
+            callbackData == ButtonLabel.REMOVE_FRIEND.label -> {
+                sendUserRequest(MessageLabel.REMOVE_FRIEND.toString(), update)
+                handleRemoveFriend(update)
+            }
+            callbackData == ButtonLabel.HELP.label -> {
+                sendUserRequest(MessageLabel.HELP.toString(), update)
+                handleHelp(update)
+            }
+            callbackData.startsWith(ButtonLabel.LIST_OF_FRIENDS.label) -> {
+                sendUserRequest(MessageLabel.LIST_OF_FRIENDS.toString(), update)
+                handleListOfFriends(update)
+            }
         }
 
         bot.execute(AnswerCallbackQuery(update.callbackQuery().id()))
@@ -73,15 +99,11 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         if (update.callbackQuery().data() == ButtonLabel.LIST_OF_FRIENDS.label) {
             sendMessage(update, user.getFriendList(offset), buttonManager.getListOfFriendsButtons(offset))
         } else if (update.callbackQuery().message().replyMarkup() != buttonManager.getListOfFriendsButtons(offset)) {
-            try {
-                editMessage(
-                    update.callbackQuery().message(),
-                    user.getFriendList(offset),
-                    buttonManager.getListOfFriendsButtons(offset)
-                )
-            } catch (e: TelegramException) {
-                TODO("Bad request: the same message")
-            }
+            editMessage(
+                update.callbackQuery().message(),
+                user.getFriendList(offset),
+                buttonManager.getListOfFriendsButtons(offset)
+            )
         }
     }
 

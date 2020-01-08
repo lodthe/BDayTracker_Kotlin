@@ -4,15 +4,18 @@ import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup
 import com.pengrad.telegrambot.model.request.ParseMode
+import me.lodthe.bdaytracker.ChatBaseAPI
 import me.lodthe.bdaytracker.database.UsersManager
 import me.lodthe.bdaytracker.telegram.ButtonManager
 import me.lodthe.bdaytracker.telegram.KTelegramBot
+import me.lodthe.bdaytracker.telegram.MessageLabel
 import me.lodthe.bdaytracker.telegram.SmartTelegramMessageRequestsController
 import me.lodthe.bdaytracker.vk.KVKBot
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
 
 open class BaseHandler(private val kodein: Kodein) {
+    protected val chatbase: ChatBaseAPI by kodein.instance()
     protected val vkBot: KVKBot by kodein.instance()
     protected val bot: KTelegramBot by kodein.instance()
     private val smartMessageController: SmartTelegramMessageRequestsController by kodein.instance()
@@ -28,8 +31,16 @@ open class BaseHandler(private val kodein: Kodein) {
         return update.message().chat().id()
     }
 
-    protected fun getChatId(message: Message): Long {
+    private fun getChatId(message: Message): Long {
         return message.chat().id()
+    }
+
+    protected open fun getMessageFromUpdate(update: Update): Message {
+        return update.message()
+    }
+
+    protected suspend fun sendUserRequest(intent: String?, update: Update) {
+        chatbase.sendUserRequest(intent, getMessageFromUpdate(update).text(), getChatId(update))
     }
 
     protected open suspend fun sendMessage(
@@ -39,6 +50,7 @@ open class BaseHandler(private val kodein: Kodein) {
         priority: Int = 0,
         parseMode: ParseMode = ParseMode.Markdown
     ) {
+        chatbase.sendAgentResponse(getMessageFromUpdate(update).text(), getChatId(update))
         smartMessageController.sendMessage(
             getChatId(update),
             messageText,
@@ -55,6 +67,7 @@ open class BaseHandler(private val kodein: Kodein) {
         priority: Int = 0,
         parseMode: ParseMode = ParseMode.Markdown
     ) {
+        chatbase.sendAgentResponse(message.text(), getChatId(message))
         smartMessageController.editMessage(
             getChatId(message),
             message.messageId(),

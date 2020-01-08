@@ -18,6 +18,8 @@ import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 
 val kodein = Kodein {
+    bind<ChatBaseAPI>() with singleton { ChatBaseAPI(System.getenv("CHATBASE_API_KEY")) }
+
     bind<KVKBot>() with singleton {
         KVKBot(System.getenv("VK_APP_ID").toInt(), System.getenv("VK_APP_TOKEN"))
     }
