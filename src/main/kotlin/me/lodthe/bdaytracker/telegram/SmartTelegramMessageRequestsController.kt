@@ -7,7 +7,7 @@ import com.pengrad.telegrambot.request.SendMessage
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
 
-class SmartTelegramMessageRequestsController(private val kodein: Kodein) {
+class SmartTelegramMessageRequestsController(kodein: Kodein) {
     private val bot: KTelegramBot by kodein.instance()
     private val requestSender: PriorityTelegramRequestSender by kodein.instance()
 

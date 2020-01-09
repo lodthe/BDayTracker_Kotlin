@@ -38,6 +38,7 @@ class ChatBaseAPI(private val API_KEY: String) {
         }
 
     suspend fun sendUserRequest(intent: String?, message: String, userId: Long) = GlobalScope.launch {
+        logger.info("$userId sent message with $intent")
         execute(gson.toJson(User(
             api_key = API_KEY,
             message = message,
@@ -48,6 +49,7 @@ class ChatBaseAPI(private val API_KEY: String) {
     }
 
     suspend fun sendAgentResponse(message: String, userId: Long) = GlobalScope.launch {
+        logger.info("Agent sent response to $userId")
         execute(gson.toJson(Agent(
             api_key = API_KEY,
             message = message,
@@ -81,5 +83,6 @@ class ChatBaseAPI(private val API_KEY: String) {
 
     companion object {
         const val API_URL = "https://chatbase-area120.appspot.com/api/message"
+        val logger = getLogger<ChatBaseAPI>()
     }
 }

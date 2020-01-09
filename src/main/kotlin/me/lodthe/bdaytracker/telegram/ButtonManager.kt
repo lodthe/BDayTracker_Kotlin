@@ -38,6 +38,7 @@ class ButtonManager(private val kodein: Kodein) {
 
     fun getAddFriendsSuccessButtons() = InlineKeyboardMarkup(
         getOnlyListOfFriendsButtons(),
+        getOnlyAddButtons(),
         getOnlyMenuButtons()
     )
 
@@ -64,7 +65,19 @@ class ButtonManager(private val kodein: Kodein) {
         getOnlyMenuButtons()
     )
 
-    fun getNotificateButtons() = getRegularButtons()
+    fun getNotificationButtons() = InlineKeyboardMarkup(
+        getOnlyMenuButtons()
+    )
+
+    fun getChangeIdButtons() = InlineKeyboardMarkup(
+        getOnlyListOfFriendsButtons(),
+        getOnlyMenuButtons()
+    )
+
+    fun getImportFromVKButtons() = InlineKeyboardMarkup(
+        getOnlyListOfFriendsButtons(),
+        getOnlyMenuButtons()
+    )
 
 
     private fun getInlineButton(label: ButtonLabel, callback: String = label.label): InlineKeyboardButton {

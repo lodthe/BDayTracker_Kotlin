@@ -5,6 +5,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
+import me.lodthe.bdaytracker.getLogger
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
 
@@ -19,6 +20,7 @@ class PriorityTelegramRequestSender(private val kodein: Kodein, private val COUN
     private val bot: KTelegramBot by kodein.instance()
 
     suspend fun run() = GlobalScope.launch {
+        logger.info("Priority request sender was started")
         while (true) {
             launch { receive() }
             delay(delayBetweenRequests)
@@ -38,5 +40,9 @@ class PriorityTelegramRequestSender(private val kodein: Kodein, private val COUN
         for (channel in channels) {
             channel.onReceive { it.invoke() }
         }
+    }
+
+    companion object {
+        val logger = getLogger<PriorityTelegramRequestSender>()
     }
 }

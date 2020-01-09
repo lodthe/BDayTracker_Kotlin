@@ -39,6 +39,8 @@ enum class MessageLabel(val label: String) {
 
     ID_HAS_CHANGED("""
         VK ID и список друзей из VK успешно обновлены.
+        
+        Новый VK ID: `%d`
     """.trimIndent()),
 
     ADD_FRIEND("""
@@ -88,29 +90,29 @@ enum class MessageLabel(val label: String) {
     """.trimIndent()),
 
     REMOVE_FRIEND_SUCCESS("""
-        Друг удалён успешно.
+        %s успешно удален(а) из списка друзей.
     """.trimIndent()),
 
     FRIENDS_TO_CONGRATULATE_LIST("""
-        Не забудь сегодня поздравить друзей с Днем Рождения:
+        Не забудь сегодня поздравить друзей с Днем Рождения!
         
-        
+        %s
     """.trimIndent()),
 
     LIST_OF_FRIENDS("")
 }
 
 enum class ButtonLabel(val label: String) {
-    HELP("Помощь"),
-    ADD_FRIEND("Добавить"),
-    IMPORT_FROM_VK("Обновить из VK"),
-    UPDATE_VK_ID("Обновить VK ID"),
-    LIST_OF_FRIENDS("Список друзей"),
-    LIST_OF_FRIENDS_PREVIOUS_PAGE("Назад"),
-    LIST_OF_FRIENDS_NEXT_PAGE("Вперед"),
-    MENU("Меню"),
-    GET_ID("Узнать VK ID"),
-    REMOVE_FRIEND("Удалить друга")
+    HELP("\uD83D\uDD39 Помощь"),
+    ADD_FRIEND("\uD83D\uDC9A Добавить"),
+    IMPORT_FROM_VK("\uD83D\uDD04 Обновить из VK"),
+    UPDATE_VK_ID("✏️ Обновить VK ID"),
+    LIST_OF_FRIENDS("\uD83D\uDC68\uD83C\uDFFC Список друзей"),
+    LIST_OF_FRIENDS_PREVIOUS_PAGE("⬅️ Назад"),
+    LIST_OF_FRIENDS_NEXT_PAGE("➡️ Вперед"),
+    MENU("\uD83D\uDCDD Меню"),
+    GET_ID("❓ Узнать VK ID"),
+    REMOVE_FRIEND("❌ Удалить друга")
 }
 
 enum class TextLabel(val label: String) {

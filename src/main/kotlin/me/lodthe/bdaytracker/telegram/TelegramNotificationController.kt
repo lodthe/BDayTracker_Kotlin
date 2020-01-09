@@ -1,49 +1,48 @@
 package me.lodthe.bdaytracker.telegram
 
-import com.pengrad.telegrambot.TelegramException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import me.lodthe.bdaytracker.ZONE_ID
 import me.lodthe.bdaytracker.database.BirthDate
 import me.lodthe.bdaytracker.database.UsersManager
 import me.lodthe.bdaytracker.getCurrentDate
+import me.lodthe.bdaytracker.getLogger
 import org.kodein.di.Kodein
 import org.kodein.di.generic.instance
 import java.time.LocalDateTime
-import java.time.ZoneId
 
-class TelegramNotificationController(private val kodein: Kodein) {
+class TelegramNotificationController(kodein: Kodein) {
     private val users: UsersManager by kodein.instance()
     private val smartMessageController: SmartTelegramMessageRequestsController by kodein.instance()
     private val buttonManager: ButtonManager by kodein.instance()
+    private val latestNotificationDate: BirthDate? = null
 
     suspend fun run() = coroutineScope {
+        logger.info("Telegram notificator was started")
         while (true) {
-            val currentHour = LocalDateTime.now().atZone(ZoneId.of("Europe/Moscow")).hour
-            val currentMinute = LocalDateTime.now().atZone(ZoneId.of("Europe/Moscow")).minute
-            if ((currentHour == BIRTHDAY_NOTIFICATION_HOUR) and (currentMinute == BIRTHDAY_NOTIFICATION_MINUTE)) {
-                val currentDate: BirthDate = getCurrentDate()
+            val currentHour = LocalDateTime.now().atZone(ZONE_ID).hour
+            val currentDate: BirthDate = getCurrentDate()
 
+            if ((currentHour == BIRTHDAY_NOTIFICATION_HOUR) and (latestNotificationDate != currentDate)) {
                 users.getAllUsers().consumeEach { user ->
-                    val birthdayList = user
-                        .friends
-                        .filter {
-                            it.birthday == currentDate
-                        }
-                        .joinToString(separator = "\n") {
-                            it.getNameWithVKURL()
-                        }
+                    val birthdayList = user.getFriendsNamesToCongratulate(currentDate)
 
                     try {
                         if (birthdayList.isNotEmpty()) {
+                            logger.info("""
+                                Sending notification about congratulating friends to ${user.telegramId}: 
+                                ${MessageLabel.FRIENDS_TO_CONGRATULATE_LIST.label.format(birthdayList)}
+                            """.trimIndent())
+
                             smartMessageController.sendMessage(
                                 user.telegramId,
-                                "${MessageLabel.FRIENDS_TO_CONGRATULATE_LIST.label}${birthdayList}",
-                                buttonManager.getNotificateButtons(),
+                                MessageLabel.FRIENDS_TO_CONGRATULATE_LIST.label.format(birthdayList),
+                                buttonManager.getNotificationButtons(),
                                 priority = 1
                             )
                         }
-                    } catch (e: TelegramException) {
-                        TODO("Fix something here")
+                    } catch (e: Exception) {
+                        logger.error(e.stackTrace.toString())
                     }
                 }
             }
@@ -54,7 +53,7 @@ class TelegramNotificationController(private val kodein: Kodein) {
 
     companion object {
         const val BIRTHDAY_NOTIFICATION_HOUR = 1
-        const val BIRTHDAY_NOTIFICATION_MINUTE = 45
-        const val DELAY_BETWEEN_DATE_CHECKS = 30_000L
+        const val DELAY_BETWEEN_DATE_CHECKS = 60_000L
+        val logger = getLogger<TelegramNotificationController>()
     }
 }

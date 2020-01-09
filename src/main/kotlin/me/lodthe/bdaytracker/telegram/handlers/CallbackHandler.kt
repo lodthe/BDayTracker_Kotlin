@@ -1,17 +1,17 @@
 package me.lodthe.bdaytracker.telegram.handlers
 
-import com.pengrad.telegrambot.TelegramException
 import com.pengrad.telegrambot.model.Message
 import com.pengrad.telegrambot.model.Update
 import com.pengrad.telegrambot.request.AnswerCallbackQuery
-import com.vk.api.sdk.exceptions.ApiPrivateProfileException
+import com.vk.api.sdk.exceptions.ApiException
 import kotlinx.coroutines.coroutineScope
 import me.lodthe.bdaytracker.database.UserState
+import me.lodthe.bdaytracker.getLogger
 import me.lodthe.bdaytracker.telegram.ButtonLabel
 import me.lodthe.bdaytracker.telegram.MessageLabel
 import org.kodein.di.Kodein
 
-class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
+class CallbackHandler(kodein: Kodein) : BaseHandler(kodein) {
     override fun getChatId(update: Update): Long {
         return update.callbackQuery().message().chat().id()
     }
@@ -22,6 +22,8 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
 
     override suspend fun handle(update: Update): Unit = coroutineScope {
         val callbackData = update.callbackQuery().data()
+        logger.info("${getChatId(update)} sent callback query: ${callbackData}")
+
         when {
             callbackData == ButtonLabel.MENU.label -> {
                 sendUserRequest(MessageLabel.MENU.toString(), update)
@@ -51,6 +53,8 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
                 sendUserRequest(MessageLabel.LIST_OF_FRIENDS.toString(), update)
                 handleListOfFriends(update)
             }
+            else ->
+                logger.error("Couldn't recognize the callback sent by ${getChatId(update)}")
         }
 
         bot.execute(AnswerCallbackQuery(update.callbackQuery().id()))
@@ -68,12 +72,13 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
         } else {
             try {
                 user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
-            } catch (e: ApiPrivateProfileException) {
-                sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getRegularButtons())
+            } catch (e: ApiException) {
+                logger.info("Couldn't parse user's friend list: ${e.stackTrace}")
+                sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getImportFromVKButtons())
             }
 
             users.updateUser(user)
-            sendMessage(update, MessageLabel.IMPORT_FROM_VK.label, buttonManager.getRegularButtons())
+            sendMessage(update, MessageLabel.IMPORT_FROM_VK.label, buttonManager.getImportFromVKButtons())
         }
     }
 
@@ -123,5 +128,9 @@ class CallbackHandler(private val kodein: Kodein) : BaseHandler(kodein) {
 
     private suspend fun handleHelp(update: Update) {
         sendMessage(update, MessageLabel.HELP.label, buttonManager.getHelpButtons())
+    }
+
+    companion object {
+        val logger = getLogger<CallbackHandler>()
     }
 }

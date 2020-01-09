@@ -17,9 +17,8 @@ class UsersManager(kodein: Kodein) {
         }.invoke()
     }
 
-    suspend fun updateUser(user: DatabaseUser): Unit = coroutineScope {
+    suspend fun updateUser(user: DatabaseUser): Unit = coroutineScope<Unit> {
         users.findOneAndReplace(DatabaseUser::telegramId eq user.telegramId, user)
-        Unit
     }
 
     suspend fun getAllUsers() = coroutineScope {

@@ -1,20 +1,21 @@
 package me.lodthe.bdaytracker.telegram.handlers
 
 import com.pengrad.telegrambot.model.Update
-import com.pengrad.telegrambot.request.SendMessage
-import com.vk.api.sdk.exceptions.ApiPrivateProfileException
+import com.vk.api.sdk.exceptions.ApiException
 import kotlinx.coroutines.coroutineScope
 import me.lodthe.bdaytracker.database.BirthDate
 import me.lodthe.bdaytracker.database.Friend
 import me.lodthe.bdaytracker.database.UserState
+import me.lodthe.bdaytracker.getLogger
 import me.lodthe.bdaytracker.telegram.MessageLabel
 import org.kodein.di.Kodein
-import org.kodein.di.generic.instance
 
-class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
+class MessageHandler(kodein: Kodein) : BaseHandler(kodein) {
     override suspend fun handle(update: Update) = coroutineScope {
         val trimmedText = update.message().text().trim()
         val user = users.getOrCreateUser(getChatId(update))
+        logger.info("${getChatId(update)} sent message: ${trimmedText}")
+
         when {
             user.state == UserState.CHANGING_ID -> {
                 sendUserRequest(UserState.CHANGING_ID.toString(), update)
@@ -49,13 +50,14 @@ class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
             try {
                 user.vkId = id
                 user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
-            } catch (e: ApiPrivateProfileException) {
-                return sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getRegularButtons())
+            } catch (e: ApiException) {
+                logger.info("Couldn't parse user's friend list: ${e.stackTrace}")
+                return sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getChangeIdButtons())
             }
 
             user.state = UserState.NONE
             users.updateUser(user)
-            sendMessage(update, MessageLabel.ID_HAS_CHANGED.label, buttonManager.getRegularButtons())
+            sendMessage(update, MessageLabel.ID_HAS_CHANGED.label.format(id), buttonManager.getChangeIdButtons())
         }
     }
 
@@ -91,8 +93,11 @@ class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
             sendMessage(update, MessageLabel.REMOVE_FRIEND_WRONG_FORMAT.label,
                 buttonManager.getRemoveFriendWrongFormatButtons())
         } else {
-            user.removeFriend(friendId!!)
-            sendMessage(update, MessageLabel.REMOVE_FRIEND_SUCCESS.label, buttonManager.getRegularButtons())
+            sendMessage(
+                update,
+                MessageLabel.REMOVE_FRIEND_SUCCESS.label.format(user.removeFriend(friendId!!).getNameWithVKURL()),
+                buttonManager.getRegularButtons()
+            )
         }
 
         users.updateUser(user)
@@ -100,5 +105,9 @@ class MessageHandler(private val kodein: Kodein) : BaseHandler(kodein) {
 
     private suspend fun handleWrongCommand(update: Update) {
         sendMessage(update, MessageLabel.WRONG_COMMAND.label, buttonManager.getWrongCommandButtons())
+    }
+
+    companion object {
+        val logger = getLogger<MessageHandler>()
     }
 }
