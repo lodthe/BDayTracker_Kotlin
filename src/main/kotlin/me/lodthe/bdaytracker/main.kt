@@ -1,7 +1,5 @@
 package me.lodthe.bdaytracker
 
-import com.mongodb.MongoClientSettings
-import com.mongodb.MongoCredential
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import me.lodthe.bdaytracker.database.UsersManager
@@ -35,11 +33,8 @@ val kodein = Kodein {
     bind<ButtonManager>() with singleton { ButtonManager(kodein) }
 
     bind<CoroutineDatabase>() with singleton {
-        val credential = MongoCredential.createCredential("root", "admin", "root".toCharArray())
-        val settings = MongoClientSettings.builder()
-            .credential(credential).build()
-        KMongo.createClient(settings).coroutine
-            .getDatabase("bdaytracker")
+        KMongo.createClient(System.getenv("MONGO_CONNECTION_STRING")).coroutine
+            .getDatabase(System.getenv("MONGO_DATABASE"))
     }
     bind<UsersManager>() with singleton { UsersManager(kodein) }
 }
