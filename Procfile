@@ -1,0 +1,1 @@
+worker: ./gradlew build run
