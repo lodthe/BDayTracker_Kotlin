@@ -51,7 +51,7 @@ class MessageHandler(kodein: Kodein) : BaseHandler(kodein) {
                 user.vkId = id
                 user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
             } catch (e: ApiException) {
-                logger.info("Couldn't parse user's friend list: ${e.stackTrace}")
+                logger.info("Couldn't parse user's friend list", e)
                 return sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getChangeIdButtons())
             }
 

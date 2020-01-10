@@ -73,7 +73,7 @@ class CallbackHandler(kodein: Kodein) : BaseHandler(kodein) {
             try {
                 user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
             } catch (e: ApiException) {
-                logger.info("Couldn't parse user's friend list: ${e.stackTrace}")
+                logger.info("Couldn't parse user's friend list", e)
                 sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getImportFromVKButtons())
             }
 

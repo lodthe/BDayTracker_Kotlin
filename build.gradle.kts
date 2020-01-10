@@ -3,6 +3,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     kotlin("jvm") version "1.3.41"
+    id("application")
+}
+
+application {
+    mainClassName = "me.lodthe.bdaytracker.MainKt"
 }
 
 group = "me.lodthe"

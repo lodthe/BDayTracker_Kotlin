@@ -42,7 +42,7 @@ class TelegramNotificationController(kodein: Kodein) {
                             )
                         }
                     } catch (e: Exception) {
-                        logger.error(e.stackTrace.toString())
+                        logger.error("Couldn't send notifications", e)
                     }
                 }
             }

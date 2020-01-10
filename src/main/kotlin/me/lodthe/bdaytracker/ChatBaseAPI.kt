@@ -77,7 +77,7 @@ class ChatBaseAPI(private val API_KEY: String) {
                 }
             })
         } catch (e: Exception) {
-            e.printStackTrace()
+            logger.error("Couldn't execute ChatBase request", e)
         }
     }
 

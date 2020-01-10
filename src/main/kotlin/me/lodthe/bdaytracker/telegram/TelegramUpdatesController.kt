@@ -23,7 +23,7 @@ class TelegramUpdatesController(private val kodein: Kodein) {
                     update.callbackQuery() != null -> callbackHandler.handle(update)
                 }
             } catch(e: Exception) {
-                logger.error(e.stackTrace.toString())
+                logger.error("Couldn't process update", e)
             }
         }
     }
