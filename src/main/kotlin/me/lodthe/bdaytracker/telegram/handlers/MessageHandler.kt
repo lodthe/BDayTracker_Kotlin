@@ -17,6 +17,10 @@ class MessageHandler(kodein: Kodein) : BaseHandler(kodein) {
         logger.info("${getChatId(update)} sent message: ${trimmedText}")
 
         when {
+            trimmedText.startsWith("/start") -> {
+                sendUserRequest(UserState.START.toString(), update)
+                handleStart(update)
+            }
             user.state == UserState.CHANGING_ID -> {
                 sendUserRequest(UserState.CHANGING_ID.toString(), update)
                 handleChangingId(update)
@@ -28,10 +32,6 @@ class MessageHandler(kodein: Kodein) : BaseHandler(kodein) {
             user.state == UserState.REMOVING_FRIEND -> {
                 sendUserRequest(UserState.REMOVING_FRIEND.toString(), update)
                 handleRemovingFriend(update)
-            }
-            trimmedText.startsWith("/start") -> {
-                sendUserRequest(UserState.START.toString(), update)
-                handleStart(update)
             }
             else -> {
                 sendUserRequest(null, update)

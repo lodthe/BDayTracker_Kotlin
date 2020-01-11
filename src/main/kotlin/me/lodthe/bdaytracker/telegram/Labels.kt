@@ -18,7 +18,7 @@ enum class MessageLabel(val label: String) {
     HELP(START.label),
 
     WRONG_COMMAND("""
-        Кажется, Вы отправил мне что-то не то.
+        Кажется, Вы отправили мне что-то не то.
     """.trimIndent()),
 
     MENU("""
