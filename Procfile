@@ -1,1 +1,1 @@
-worker: ./gradlew build run
+worker: java -jar build/libs/bdaytracker*.jar
