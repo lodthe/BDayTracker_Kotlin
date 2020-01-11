@@ -20,15 +20,18 @@ data class Friend(
     val name: String,
     var birthday: BirthDate?
 ) {
+    @JsonIgnore
     fun getNameWithVKURL(): String {
         return if (id == null) "`$name`" else "[$name](https://vk.com/id$id)"
     }
 
+    @JsonIgnore
     fun getRepresentationWithIndex(index: Int, countOfRadix: Int): String {
         val indexRepresentation = (index + 1).toString().padStart(countOfRadix, '0')
         return "*$indexRepresentation*. ${getNameWithVKURL()} — ${getBirthdayRepresentation()}"
     }
 
+    @JsonIgnore
     private fun getBirthdayRepresentation() = "${birthday ?: TextLabel.NO_BIRTHDATE_DATA.label}"
 }
 

@@ -1,6 +1,9 @@
 package me.lodthe.bdaytracker.database
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 data class BirthDate(val day: Int, val month: Int) {
+    @JsonIgnore
     fun getDayOfYear() = month * 31 + day
 
     override fun toString(): String {
