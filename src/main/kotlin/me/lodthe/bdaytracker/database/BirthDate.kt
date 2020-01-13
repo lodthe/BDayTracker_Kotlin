@@ -16,7 +16,7 @@ data class BirthDate(val day: Int, val month: Int) {
         fun fromString(str: String?): BirthDate? = when (str) {
             null -> null
             else -> {
-                val numbers = str.split(".").map { it.toIntOrNull() }
+                val numbers = str.split(regex = "\\D".toRegex()).map { it.toIntOrNull() }
                 when {
                     numbers.size !in (2..3) -> null
                     numbers[0] !in (1..31) -> null

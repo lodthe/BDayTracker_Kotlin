@@ -41,6 +41,10 @@ class CallbackHandler(kodein: Kodein) : BaseHandler(kodein) {
                 sendUserRequest(MessageLabel.ADD_FRIEND.toString(), update)
                 handleAddFriend(update)
             }
+            callbackData == ButtonLabel.CANCEL_ADDING_FRIEND.label -> {
+                sendUserRequest(MessageLabel.CANCEL_ADDING_FRIEND.toString(), update)
+                handleCancelAddingFriend(update)
+            }
             callbackData == ButtonLabel.REMOVE_FRIEND.label -> {
                 sendUserRequest(MessageLabel.REMOVE_FRIEND.toString(), update)
                 handleRemoveFriend(update)
@@ -116,7 +120,14 @@ class CallbackHandler(kodein: Kodein) : BaseHandler(kodein) {
         val user = users.getOrCreateUser(getChatId(update))
         user.state = UserState.ADDING_NEW_FRIEND
         users.updateUser(user)
-        sendMessage(update, MessageLabel.ADD_FRIEND.label, buttonManager.getAddFriendButtons())
+        sendMessage(update, MessageLabel.FRIEND_NAME.label, buttonManager.getFriendNameButtons())
+    }
+
+    private suspend fun handleCancelAddingFriend(update: Update) {
+        val user = users.getOrCreateUser(getChatId(update))
+        user.state = UserState.NONE
+        users.updateUser(user)
+        sendMessage(update, MessageLabel.CANCEL_ADDING_FRIEND.label, buttonManager.getCancelAddingFriendButtons())
     }
 
     private suspend fun handleRemoveFriend(update: Update) {

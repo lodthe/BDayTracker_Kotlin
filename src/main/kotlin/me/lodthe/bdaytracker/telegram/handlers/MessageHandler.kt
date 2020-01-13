@@ -65,23 +65,41 @@ class MessageHandler(kodein: Kodein) : BaseHandler(kodein) {
         sendMessage(update, MessageLabel.START.label, buttonManager.getStartButtons())
     }
 
-    private suspend fun handleAddingNewFriend(update: Update) {
-        val lines = update.message().text().split("\n")
+    private suspend fun handleAddingNewFriend(update: Update, chatId: Long = getChatId(update)) {
+        val text = update.message().text()
+        val user = users.getOrCreateUser(chatId)
+        val friendToAdd = user.friendToAdd ?: Friend()
+        user.friendToAdd = friendToAdd
 
         when {
-            lines.size != 2 ->
-                sendMessage(update, MessageLabel.ADD_FRIEND_WRONG_LINES_COUNT.label, buttonManager.getAddFriendButtons())
+            friendToAdd.name == null -> {
+                if ((text.length > MAX_NAME_SIZE) || text.any { it == '\n' } ) {
+                    sendMessage(update, MessageLabel.WRONG_FRIEND_NAME_FORMAT.label.format(MAX_NAME_SIZE),
+                        buttonManager.getWrongFriendNameFormatButtons())
+                } else {
+                    friendToAdd.name = text
+                    sendMessage(update, MessageLabel.FRIEND_BIRTHDATE.label.format(friendToAdd.getNameWithVKURL()),
+                        buttonManager.getFriendBirthdateButtons())
+                }
+            }
 
-            BirthDate.fromString(lines[1]) == null ->
-                sendMessage(update, MessageLabel.ADD_FRIEND_WRONG_DATE_FORMAT.label, buttonManager.getAddFriendButtons())
+            friendToAdd.birthday == null -> {
+                if (BirthDate.fromString(text) == null) {
+                    sendMessage(update, MessageLabel.WRONG_DATE_FORMAT.label,
+                        buttonManager.getWrongDateFormatButtons())
 
-            else -> {
-                val user = users.getOrCreateUser(getChatId(update))
-                user.addFriend(Friend(name = lines[0], birthday = BirthDate.fromString(lines[1])))
-                users.updateUser(user)
-                sendMessage(update, MessageLabel.ADD_FRIEND_SUCCESS.label, buttonManager.getAddFriendsSuccessButtons())
+                } else {
+                    friendToAdd.birthday = BirthDate.fromString(text)
+                    user.state = UserState.NONE
+                    user.addFriend(friendToAdd)
+                    user.friendToAdd = null
+                    sendMessage(update, MessageLabel.ADD_FRIEND_SUCCESS.label,
+                        buttonManager.getAddFriendsSuccessButtons())
+                }
             }
         }
+
+        users.updateUser(user)
     }
 
     private suspend fun handleRemovingFriend(update: Update) {
@@ -109,5 +127,6 @@ class MessageHandler(kodein: Kodein) : BaseHandler(kodein) {
 
     companion object {
         val logger = getLogger<MessageHandler>()
+        const val MAX_NAME_SIZE = 100
     }
 }

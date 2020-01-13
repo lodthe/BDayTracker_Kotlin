@@ -17,8 +17,8 @@ enum class UserState {
 
 data class Friend(
     val id: Int? = null,
-    val name: String,
-    var birthday: BirthDate?
+    var name: String? = null,
+    var birthday: BirthDate? = null
 ) {
     @JsonIgnore
     fun getNameWithVKURL(): String {
@@ -40,6 +40,7 @@ data class DatabaseUser(val telegramId: Long) {
     var state: UserState = UserState.NONE
     @Suppress
     val friends = mutableSetOf<Friend>()
+    var friendToAdd: Friend? = null
 
     @JsonIgnore
     fun getUserFriendsSizeRange() = IntRange(1, friends.size)
