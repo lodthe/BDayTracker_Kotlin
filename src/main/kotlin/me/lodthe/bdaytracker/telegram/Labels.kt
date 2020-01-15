@@ -33,9 +33,17 @@ enum class MessageLabel(val label: String) {
     """.trimIndent()),
 
     UPDATE_VK_ID("""
-        Введите новый VK ID. Он может содержать только цифры.
+        Отправьте ссылку на профиль ВКонтакте. Например, ```vk.com/durov```
         
         Не забывайте, чтобы сделать это в групповом чате, требуется ответить на сообщение бота.
+    """.trimIndent()),
+
+    CANNOT_PARSE_FRIENDS("""
+        Не получилось получить Ваших друзей. Проверьте, что профиль не приватный, а также, что ссылка соответствует Вашему профилю.
+        
+        В ссылке в конце не должно быть символа / (слеш).
+        
+        Попробуйте еще раз.
     """.trimIndent()),
 
     IMPORT_FROM_VK("""
@@ -64,7 +72,7 @@ enum class MessageLabel(val label: String) {
     """.trimIndent()),
 
     FRIEND_NAME("""
-        Введите имя друга, под которым Вы хотите видеть его в списке друзей.
+        Отправьте имя друга, под которым Вы хотите видеть его в списке друзей.
     """.trimIndent()),
 
     WRONG_FRIEND_NAME_FORMAT("""
@@ -72,7 +80,7 @@ enum class MessageLabel(val label: String) {
     """.trimIndent()),
 
     FRIEND_BIRTHDATE("""
-        Введите дату рождения %s в следующем формате:
+        Отправьте дату рождения %s в следующем формате:
         
         ```17.10```
         
@@ -87,12 +95,6 @@ enum class MessageLabel(val label: String) {
 
     ADD_FRIEND_SUCCESS("""
         Новый друг успешно добавлен!
-    """.trimIndent()),
-
-    PROFILE_IS_CLOSED("""
-        Кажется, профиль VK приватный, поэтому я не могу получить список друзей.
-        
-        Чтобы импортировать друзей VK с нового профиля, сделайте временно профиль VK открытым, обновите VK ID в боте, а затем можно опять сделать профиль приватным.
     """.trimIndent()),
 
     REMOVE_FRIEND("""
@@ -135,8 +137,6 @@ enum class ButtonLabel(val label: String) {
 }
 
 enum class TextLabel(val label: String) {
-    GET_ID("https://vk.cc/75Fstp"),
-
     EMPTY_FRIEND_LIST("""
         К сожалению, пока что Ваш список друзей пуст. Вы можете добавить друга вручную или импортировать друзей из VK.
     """.trimIndent()),

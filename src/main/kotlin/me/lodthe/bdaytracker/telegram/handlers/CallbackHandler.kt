@@ -77,10 +77,10 @@ class CallbackHandler(kodein: Kodein) : BaseHandler(kodein) {
             try {
                 user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
             } catch (e: ApiException) {
-                logger.info("Couldn't parse user's friend list", e)
-                sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getImportFromVKButtons())
+                MessageHandler.logger.info("Couldn't parse user's friend list", e)
+                return sendMessage(update, MessageLabel.CANNOT_PARSE_FRIENDS.label,
+                    buttonManager.getCannotParseFriendsButtons())
             }
-
             users.updateUser(user)
             sendMessage(update, MessageLabel.IMPORT_FROM_VK.label, buttonManager.getImportFromVKButtons())
         }

@@ -41,24 +41,21 @@ class MessageHandler(kodein: Kodein) : BaseHandler(kodein) {
     }
 
     private suspend fun handleChangingId(update: Update) {
-        val id = update.message().text().toIntOrNull()
-        if (id == null) {
-            sendMessage(update, MessageLabel.UPDATE_VK_ID.label, buttonManager.getGetIdButtons())
-        } else {
-            val user = users.getOrCreateUser(getChatId(update))
+        val url = update.message().text()
+        val user = users.getOrCreateUser(getChatId(update))
 
-            try {
-                user.vkId = id
-                user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
-            } catch (e: ApiException) {
-                logger.info("Couldn't parse user's friend list", e)
-                return sendMessage(update, MessageLabel.PROFILE_IS_CLOSED.label, buttonManager.getChangeIdButtons())
-            }
-
-            user.state = UserState.NONE
-            users.updateUser(user)
-            sendMessage(update, MessageLabel.ID_HAS_CHANGED.label.format(id), buttonManager.getChangeIdButtons())
+        try {
+            user.vkId = vkBot.getIdFromPageUrl(url)
+            user.updateVKFriends(vkBot.getFriendList(user.vkId!!)!!.items)
+        } catch (e: ApiException) {
+            logger.info("Couldn't parse user's friend list or id", e)
+            return sendMessage(update, MessageLabel.CANNOT_PARSE_FRIENDS.label,
+                buttonManager.getCannotParseFriendsButtons())
         }
+
+        user.state = UserState.NONE
+        users.updateUser(user)
+        sendMessage(update, MessageLabel.ID_HAS_CHANGED.label.format(user.vkId), buttonManager.getChangeIdButtons())
     }
 
     private suspend fun handleStart(update: Update) {

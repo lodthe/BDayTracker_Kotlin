@@ -16,4 +16,13 @@ class KVKBot(private val APP_ID: Int, private val APP_TOKEN: String) {
     suspend fun getFriendList(userId: Int): GetFieldsResponse? = withContext(Dispatchers.IO) {
         vk.friends().getWithFields(actor, Fields.BDATE).userId(userId).lang(Lang.RU).execute()
     }
+
+    suspend fun getIdFromPageUrl(url: String)= withContext(Dispatchers.IO) {
+        var nickname = url.takeLastWhile { it != '/' }
+        if (nickname.isEmpty()) {
+            nickname = ":("
+        }
+
+        vk.users().get(actor).userIds(nickname).execute()[0].id
+    }
 }
