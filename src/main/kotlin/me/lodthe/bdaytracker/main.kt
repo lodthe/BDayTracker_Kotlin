@@ -1,6 +1,7 @@
 package me.lodthe.bdaytracker
 
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.lodthe.bdaytracker.database.UsersManager
 import me.lodthe.bdaytracker.telegram.*
@@ -46,6 +47,10 @@ suspend fun runControllers(kodein: Kodein) = coroutineScope {
     launch { telegramController.run() }
     launch { queriesSender.run() }
     launch { notificator.run() }
+    launch {
+        delay(1000 * 1 * 60 * 60)
+        println("It's time to restart!")
+    }
 }
 
 suspend fun main() {
